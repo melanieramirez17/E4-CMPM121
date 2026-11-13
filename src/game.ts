@@ -7,7 +7,12 @@ import {
   Player,
   WIDTH,
 } from "./actors.ts";
-import { ShmupBoss, ShmupPowerUp, ShmupPrefabSprite } from "./prefab.ts";
+import {
+  kindData,
+  ShmupBoss,
+  ShmupPowerUp,
+  ShmupPrefabSprite,
+} from "./prefab.ts";
 import type { Hud } from "./hud.ts";
 import type { LaunchOptions } from "./main.ts";
 import { AutoPilot, KeyboardPilot, type Pilot } from "./pilots.ts";
@@ -52,9 +57,6 @@ export class GameScene extends Phaser.Scene implements Arena {
   private pickups: ShmupPowerUp[] = [];
   private sector = -1;
   private sectorStart = 0;
-  private enemy1;
-  private enemy2;
-  private enemy3;
   private boss: ShmupBoss | null = null;
   private bossDueAt = 0;
   private victoryAt = 0;
@@ -322,14 +324,7 @@ export class GameScene extends Phaser.Scene implements Arena {
         this,
         x,
         y,
-        "drone",
-        2,
-        100,
-        13,
-        0.015,
-        true,
-        false,
-        x,
+        kindData.drone,
         x < WIDTH / 2 ? 1 : -1,
       ),
     );
@@ -443,6 +438,7 @@ export class GameScene extends Phaser.Scene implements Arena {
 
     this.advanceRoute();
   }
+
   private spawnWave(wave: WaveSetup, t: number): void {
     const enemyType = wave.enemy;
     const enemyLayout = wave.enemyFormation;
@@ -467,40 +463,11 @@ export class GameScene extends Phaser.Scene implements Arena {
         newX = wave.enemyPosition + (i - middle) * 64;
       } else if (enemyLayout === "vee") {
         newX = wave.enemyPosition + (i - middle) * 44;
-        newY = -30 - Math.abs(i - middle) * 10;
       } else if (enemyLayout === "column") {
         newX = wave.enemyPosition;
-        newY = -30 - i * 24;
       } else if (enemyLayout === "pincer") {
         newX = i % 2 === 0 ? -30 : 510;
         newY = 70 + Math.floor(i / 2) * 50;
-      }
-
-      let enemyName = "drone";
-      let healthPoints = 2;
-      let score = 100;
-      let radius = 13;
-      let dropChance = 0.015;
-      let flip = true;
-
-      if (enemyType === "dart") {
-        enemyName = "dart";
-        healthPoints = 1;
-        score = 150;
-        radius = 12;
-        flip = false;
-      } else if (enemyType === "turret") {
-        enemyName = "turret";
-        healthPoints = 12;
-        score = 400;
-        radius = 19;
-        dropChance = 0.3;
-      } else if (enemyType === "lancer") {
-        enemyName = "lancer";
-        healthPoints = 4;
-        score = 250;
-        radius = 15;
-        dropChance = 0.06;
       }
       const directionSign = (enemyLayout === "pincer")
         ? (newX < 240 ? 1 : -1)
@@ -509,29 +476,10 @@ export class GameScene extends Phaser.Scene implements Arena {
         this,
         newX,
         newY,
-        enemyName,
-        healthPoints,
-        score,
-        radius,
-        dropChance,
-        flip,
-        false,
-        newX,
+        kindData[enemyType],
         directionSign,
       );
       this.enemies.push(instance);
-
-      if (this.sector === 1 && wave.tick === 720) {
-        this.enemy2.dropChance = 0.015;
-      } else {
-        instance.dropChance = dropChance;
-      }
-
-      if (enemyType === "dart") {
-        if (wave.tick === 300) this.enemy1 = instance;
-        else if (wave.tick === 600) this.enemy2 = instance;
-        else if (wave.tick === 720) this.enemy3 = instance;
-      }
     }
   }
 
