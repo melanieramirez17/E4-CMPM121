@@ -15,9 +15,15 @@ const WARP_AT = 9;
 const CREDITS_AT = 11;
 const RETURN_AT = 18;
 
+export interface RunStats {
+  score: number;
+  kills: number;
+  hits: number;
+  continues: number;
+}
 export class CutsceneScene extends Phaser.Scene {
   private backdrop!: Backdrop;
-  run = {
+  run: RunStats = {
     score: 0,
     kills: 0,
     hits: 0,
@@ -29,7 +35,7 @@ export class CutsceneScene extends Phaser.Scene {
   ) {
     super("cutscene");
   }
-  init(data: { run?: typeof this.run; attract?: boolean }) {
+  init(data: { run?: RunStats; attract?: boolean }) {
     this.run = data.run ?? {
       score: 0,
       kills: 0,
